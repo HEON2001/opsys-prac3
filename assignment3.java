@@ -3,14 +3,32 @@ import java.net.*;
 
 public class assignment3 {
 
-    static int i = 1;
+    static int i = 0;
     public static void main(String[] args) throws IOException {
-        if (args.length != 1) {
-            System.err.println("Usage: java assignment3 <port number>");
+        if (args.length < 1 || args.length > 4) {
+            System.err.println("Usage: java assignment3 -l <listening port> -p <pattern>");
             System.exit(1);
         }
 
-        int portNumber = Integer.parseInt(args[0]);
+        int portNumber = 1234;
+        String pattern = "";
+
+        if(args[0].equals("-l") && args[2].equals("-p")){
+            portNumber = Integer.parseInt(args[1]);
+            pattern = args[3];
+        }else if(args[0].equals("-p") && args[2].equals("-l")){
+            portNumber = Integer.parseInt(args[3]);
+            pattern = args[1];
+        }else{
+            System.out.println(args[0]);
+            System.out.println(args[1]);
+            System.out.println(args[2]);
+            System.out.println(args[3]);
+            System.err.println("Usage: java assignment3 -l <listening port> -p <pattern>");
+            System.exit(1);
+        }
+
+        System.out.println("Listening on port: "+portNumber);
 
         if(portNumber<1024 || portNumber>65535){
             System.err.println("Port number must be between 1024 and 65535");
