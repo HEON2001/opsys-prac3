@@ -8,7 +8,7 @@ public class assignment3 {
 
     public static void main(String[] args) throws IOException {
         if (args.length < 1 || args.length > 4) {
-            System.err.println("Usage: java assignment3 -l <listening port> -p <pattern>");
+            System.err.println("Usage: java Assignment3 -l <listening port> -p <pattern>");
             System.exit(1);
         }
 
@@ -26,13 +26,13 @@ public class assignment3 {
             System.out.println(args[1]);
             System.out.println(args[2]);
             System.out.println(args[3]);
-            System.err.println("Usage: java assignment3 -l <listening port> -p <pattern>");
+            System.err.println("Usage: java Assignment3 -l <listening port> -p <pattern>");
             System.exit(1);
         }
 
-        System.out.println("Listening on port: "+portNumber);
+        System.out.println("Listening on port: " + portNumber);
 
-        if(portNumber<1024 || portNumber>65535){
+        if(portNumber < 1024 || portNumber > 65535){
             System.err.println("Port number must be between 1024 and 65535");
             System.exit(1);
         }
@@ -45,6 +45,7 @@ public class assignment3 {
                 synchronized (lock) {
                     i++;
                 }
+                System.out.println("Client " + i + " connected");
             }
         } catch (IOException e) {
             System.err.println("Could not listen on port " + portNumber);
@@ -78,8 +79,12 @@ public class assignment3 {
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
             ) {
-                FileWriter writer = null;
-                //FileWriter writer = new FileWriter("book_"+String.format("%02d",i)+".txt", true);
+                int threadId;
+                synchronized (lock) {
+                    threadId = i;
+                }
+
+                FileWriter writer = new FileWriter("book_" + String.format("%02d", threadId) + ".txt", true);
                 String inputLine = in.readLine();
                 Node head = new Node(inputLine);
                 Node currentNode = head;
@@ -87,15 +92,12 @@ public class assignment3 {
                 while (inputLine != null) {
                     inputLine = in.readLine();
                     synchronized (fileLock) {
-                        writer = new FileWriter("book_" + String.format("%02d", i) + ".txt", true);
                         writer.write(currentNode.data + "\n");
-                        writer.close();
                     }
-                    synchronized (lock) {
-                        currentNode.book_Next = new Node(inputLine);
-                        currentNode = currentNode.book_Next;
-                    }
+                    currentNode.next = new Node(inputLine);
+                    currentNode = currentNode.next;
                 }
+
                 writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
